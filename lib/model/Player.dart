@@ -21,9 +21,14 @@ class Player {
     return !this._opponent && !this._player;
   }
 
-  bool equals(Player player1, Player player2) {
-    return (this.isPlayer() && player1.isPlayer() && player2.isPlayer()) ||
-        (this.isOpponent() && player1.isOpponent() && player2.isOpponent());
+  // bool equals(Player player1, Player player2) {
+  //   return (this.isPlayer() && player1.isPlayer() && player2.isPlayer()) ||
+  //       (this.isOpponent() && player1.isOpponent() && player2.isOpponent());
+  // }
+
+  bool equals(Player player1) {
+    return (this.isPlayer() && player1.isPlayer()) ||
+        (this.isOpponent() && player1.isOpponent());
   }
 
   ItemTableHash getItemTableHash() {

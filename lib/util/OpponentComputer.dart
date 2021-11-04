@@ -1,209 +1,189 @@
 import 'dart:math';
 
+import 'package:hash/controller/game_controller.dart';
 import 'package:hash/model/Player.dart';
 
 class OponnentComputer {
-  timeOfOpponentComputerEasy(
-      List<List<Player>> positions, Function playRound) async {
-    List<PositionFree> positionsFree =
-        AnalyzerPositions(positions).positionsFree;
-    var rnd = Random();
-    int playInPosition = rnd.nextInt(positionsFree.length - 1);
-    PositionFree positionFree = positionsFree[playInPosition];
+  timeOfOpponentComputerEasy(Positions positions, Function playRound) async {
     await Future.delayed(Duration(milliseconds: 700));
+    Position positionFree = positions.shuffleFree();
     playRound(x: positionFree.x, y: positionFree.y);
   }
 
-  timeOfOpponentComputerMedium(
-      List<List<Player>> positions, Function playRound) async {
-    AnalyzerPositions analyzerPositions = AnalyzerPositions(positions);
-    PositionFree positionFree = analyzerPositions.getNextStepOpositionMedium();
-    await Future.delayed(Duration(milliseconds: 400));
+  timeOfOpponentComputerMedium(Positions positions, Function playRound) async {
+    AnalyzerPositions analyzerPositions = AnalyzerPositions(
+      positions: positions,
+    );
+    Position positionFree = analyzerPositions.getNextStepOpositionMedium();
+    await Future.delayed(Duration(milliseconds: 500));
     playRound(x: positionFree.x, y: positionFree.y);
   }
 
-  timeOfOpponentComputerHard(
-      List<List<Player>> positions, Function playRound) async {
-    await Future.delayed(Duration(milliseconds: 400));
-    AnalyzerPositions analyzerPositions = AnalyzerPositions(positions);
-    PositionFree positionFree = analyzerPositions.getNextStepOpositionHard();
+  timeOfOpponentComputerHard(Positions positions, Function playRound) async {
+    await Future.delayed(Duration(milliseconds: 200));
+    AnalyzerPositions analyzerPositions =
+        AnalyzerPositions(positions: positions);
+    Position positionFree = analyzerPositions.getNextStepOpositionHard();
     playRound(x: positionFree.x, y: positionFree.y);
   }
 
-  PositionFree? analyserPossibleWin(List<PositionFree> positionsFree) {}
-}
-
-class Position {
-  int x;
-  int y;
-  Position(this.x, this.y);
-}
-
-class PositionFree extends Position {
-  PositionFree(int x, int y) : super(x, y);
-}
-
-class PositionOpponent extends Position {
-  PositionOpponent(int x, int y) : super(x, y);
-}
-
-class PositionPlayer extends Position {
-  PositionPlayer(int x, int y) : super(x, y);
+  Position? analyserPossibleWin(List<Position> positionsFree) {}
 }
 
 class AnalyzerPositions {
-  List<PositionFree> positionsFree = [];
-  List<PositionOpponent> positionsOpponent = [];
-  List<PositionPlayer> positionsPlayer = [];
-  List<List<Player>> positions = [];
+  Positions positions;
 
-  AnalyzerPositions(this.positions) {
-    [0, 1, 2].forEach((x) {
-      [0, 1, 2].forEach((y) {
-        if (positions[x][y].isEmpty()) {
-          positionsFree.add(PositionFree(x, y));
-        }
-        if (positions[x][y].isPlayer()) {
-          positionsPlayer.add(PositionPlayer(x, y));
-        }
-        if (positions[x][y].isOpponent()) {
-          positionsOpponent.add(PositionOpponent(x, y));
-        }
-      });
-    });
+  AnalyzerPositions({required this.positions});
+
+  Player getPlayer(int x, int y) {
+    return positions.getPlayer(x: x, y: y);
   }
 
-  Player getPosition(int x, int y) {
-    return positions[x][y];
+  bool checkIsPlayer(int x, int y) {
+    return getPlayer(x, y).isPlayer();
   }
 
-  bool checkPositionIsPlayer(Position p) {
-    return getPosition(p.x, p.y).isPlayer();
+  bool checkIsOpponent(int x, int y) {
+    return getPlayer(x, y).isOpponent();
   }
 
-  bool checkPositionIsOpponent(Position p) {
-    return getPosition(p.x, p.y).isOpponent();
+  bool checkIsEmpty(int x, int y) {
+    return getPlayer(x, y).isEmpty();
   }
 
-  PositionFree? stepToBlockWinPlayer() {
-    for (var p in positionsPlayer) {
-      int winInRow = checkPositionIsPlayer(Position(0, p.y)) ? 1 : 0;
-      winInRow += checkPositionIsPlayer(Position(1, p.y)) ? 3 : 0;
-      winInRow += checkPositionIsPlayer(Position(2, p.y)) ? 5 : 0;
+  Position? getPossiblePosition(
+      {required Position p1,
+      required Position p2,
+      required Position p3,
+      required Function check}) {
+    int sum = check(p1.x, p1.y) ? 1 : 0;
+    sum += check(p2.x, p2.y) ? 3 : 0;
+    sum += check(p3.x, p3.y) ? 5 : 0;
 
-      if (winInRow == 4 && getPosition(2, p.y).isEmpty())
-        return PositionFree(2, p.y);
-      else if (winInRow == 6 && getPosition(1, p.y).isEmpty())
-        return PositionFree(1, p.y);
-      else if (winInRow == 8 && getPosition(0, p.y).isEmpty())
-        return PositionFree(0, p.y);
+    if (sum == 4 && checkIsEmpty(p3.x, p3.y))
+      return positions.getPosition(x: p3.x, y: p3.y);
+    else if (sum == 6 && checkIsEmpty(p2.x, p2.y))
+      return positions.getPosition(x: p2.x, y: p2.y);
+    else if (sum == 8 && checkIsEmpty(p1.x, p1.y))
+      return positions.getPosition(x: p1.x, y: p1.y);
 
-      int winInColumn = checkPositionIsPlayer(Position(p.x, 0)) ? 1 : 0;
-      winInColumn += checkPositionIsPlayer(Position(p.x, 1)) ? 3 : 0;
-      winInColumn += checkPositionIsPlayer(Position(p.x, 2)) ? 5 : 0;
+    return null;
+  }
 
-      if (winInColumn == 4 && getPosition(p.x, 2).isEmpty())
-        return PositionFree(p.x, 2);
-      else if (winInColumn == 6 && getPosition(p.x, 1).isEmpty())
-        return PositionFree(p.x, 1);
-      else if (winInColumn == 8 && getPosition(p.x, 0).isEmpty())
-        return PositionFree(p.x, 0);
+  Position? getPositionToBlockPlayer({
+    required Position p1,
+    required Position p2,
+    required Position p3,
+  }) {
+    return getPossiblePosition(p1: p1, p2: p2, p3: p3, check: checkIsPlayer);
+  }
 
+  Position? getPositionToWin({
+    required Position p1,
+    required Position p2,
+    required Position p3,
+  }) {
+    return getPossiblePosition(p1: p1, p2: p2, p3: p3, check: checkIsOpponent);
+  }
+
+  Position? stepToBlockWinPlayer() {
+    Position? block;
+    for (var p in positions.positions) {
+      if (!p.player.isPlayer()) continue;
+      // Checando na linha
+      block = getPositionToBlockPlayer(
+        p1: positions.getPosition(x: 1, y: p.y),
+        p2: positions.getPosition(x: 2, y: p.y),
+        p3: positions.getPosition(x: 3, y: p.y),
+      );
+      if (block != null) return block;
+
+      // Checando na coluna
+      block = getPositionToBlockPlayer(
+        p1: positions.getPosition(x: p.x, y: 1),
+        p2: positions.getPosition(x: p.x, y: 2),
+        p3: positions.getPosition(x: p.x, y: 3),
+      );
+      if (block != null) return block;
+
+      // Checando na diagonal
       if (p.x == p.y || p.x + p.y == 4) {
-        int winInAngleToRight = checkPositionIsPlayer(Position(0, 0)) ? 1 : 0;
-        winInAngleToRight += checkPositionIsPlayer(Position(1, 1)) ? 3 : 0;
-        winInAngleToRight += checkPositionIsPlayer(Position(2, 2)) ? 5 : 0;
+        block = getPositionToBlockPlayer(
+          p1: positions.getPosition(x: 1, y: 1),
+          p2: positions.getPosition(x: 2, y: 2),
+          p3: positions.getPosition(x: 3, y: 3),
+        );
+        if (block != null) return block;
 
-        if (winInAngleToRight == 4 && getPosition(2, 2).isEmpty())
-          return PositionFree(2, 2);
-        else if (winInAngleToRight == 6 && getPosition(1, 1).isEmpty())
-          return PositionFree(1, 1);
-        else if (winInAngleToRight == 8 && getPosition(0, 0).isEmpty())
-          return PositionFree(0, 0);
-
-        int winInAngleToLeft = checkPositionIsPlayer(Position(0, 2)) ? 1 : 0;
-        winInAngleToLeft += checkPositionIsPlayer(Position(1, 1)) ? 3 : 0;
-        winInAngleToLeft += checkPositionIsPlayer(Position(2, 0)) ? 5 : 0;
-
-        if (winInAngleToLeft == 4 && getPosition(2, 0).isEmpty())
-          return PositionFree(2, 0);
-        else if (winInAngleToLeft == 6 && getPosition(1, 1).isEmpty())
-          return PositionFree(1, 1);
-        else if (winInAngleToLeft == 8 && getPosition(0, 2).isEmpty())
-          return PositionFree(0, 2);
+        block = getPositionToBlockPlayer(
+          p1: positions.getPosition(x: 1, y: 3),
+          p2: positions.getPosition(x: 2, y: 2),
+          p3: positions.getPosition(x: 3, y: 1),
+        );
+        if (block != null) return block;
       }
     }
     return null;
   }
 
-  PositionFree? stepToWin() {
-    for (var p in positionsOpponent) {
-      int winInRow = checkPositionIsOpponent(Position(0, p.y)) ? 1 : 0;
-      winInRow += checkPositionIsOpponent(Position(1, p.y)) ? 3 : 0;
-      winInRow += checkPositionIsOpponent(Position(2, p.y)) ? 5 : 0;
+  Position? stepToWin() {
+    Position? win;
 
-      if (winInRow == 4 && getPosition(2, p.y).isEmpty())
-        return PositionFree(2, p.y);
-      else if (winInRow == 6 && getPosition(1, p.y).isEmpty())
-        return PositionFree(1, p.y);
-      else if (winInRow == 8 && getPosition(0, p.y).isEmpty())
-        return PositionFree(0, p.y);
+    for (var p in positions.positions) {
+      if (!p.player.isOpponent()) continue;
+      // Checando na linha
+      win = getPositionToBlockPlayer(
+        p1: positions.getPosition(x: 1, y: p.y),
+        p2: positions.getPosition(x: 2, y: p.y),
+        p3: positions.getPosition(x: 3, y: p.y),
+      );
+      if (win != null) return win;
 
-      int winInColumn = checkPositionIsOpponent(Position(p.x, 0)) ? 1 : 0;
-      winInColumn += checkPositionIsOpponent(Position(p.x, 1)) ? 3 : 0;
-      winInColumn += checkPositionIsOpponent(Position(p.x, 2)) ? 5 : 0;
+      // Checando na coluna
+      win = getPositionToBlockPlayer(
+        p1: positions.getPosition(x: p.x, y: 1),
+        p2: positions.getPosition(x: p.x, y: 2),
+        p3: positions.getPosition(x: p.x, y: 3),
+      );
+      if (win != null) return win;
 
-      if (winInColumn == 4 && getPosition(p.x, 2).isEmpty())
-        return PositionFree(p.x, 2);
-      else if (winInColumn == 6 && getPosition(p.x, 1).isEmpty())
-        return PositionFree(p.x, 1);
-      else if (winInColumn == 8 && getPosition(p.x, 0).isEmpty())
-        return PositionFree(p.x, 0);
-
+      // Checando na diagonal
       if (p.x == p.y || p.x + p.y == 4) {
-        int winInAngleToRight = checkPositionIsOpponent(Position(0, 0)) ? 1 : 0;
-        winInAngleToRight += checkPositionIsOpponent(Position(1, 1)) ? 3 : 0;
-        winInAngleToRight += checkPositionIsOpponent(Position(2, 2)) ? 5 : 0;
+        win = getPositionToBlockPlayer(
+          p1: positions.getPosition(x: 1, y: 1),
+          p2: positions.getPosition(x: 2, y: 2),
+          p3: positions.getPosition(x: 3, y: 3),
+        );
+        if (win != null) return win;
 
-        if (winInAngleToRight == 4 && getPosition(2, 2).isEmpty())
-          return PositionFree(2, 2);
-        else if (winInAngleToRight == 6 && getPosition(1, 1).isEmpty())
-          return PositionFree(1, 1);
-        else if (winInAngleToRight == 8 && getPosition(0, 0).isEmpty())
-          return PositionFree(0, 0);
-
-        int winInAngleToLeft = checkPositionIsOpponent(Position(0, 2)) ? 1 : 0;
-        winInAngleToLeft += checkPositionIsOpponent(Position(1, 1)) ? 3 : 0;
-        winInAngleToLeft += checkPositionIsOpponent(Position(2, 0)) ? 5 : 0;
-
-        if (winInAngleToLeft == 4 && getPosition(2, 0).isEmpty())
-          return PositionFree(2, 0);
-        else if (winInAngleToLeft == 6 && getPosition(1, 1).isEmpty())
-          return PositionFree(1, 1);
-        else if (winInAngleToLeft == 8 && getPosition(0, 2).isEmpty())
-          return PositionFree(0, 2);
+        win = getPositionToBlockPlayer(
+          p1: positions.getPosition(x: 1, y: 3),
+          p2: positions.getPosition(x: 2, y: 2),
+          p3: positions.getPosition(x: 3, y: 1),
+        );
+        if (win != null) return win;
       }
     }
     return null;
   }
 
-  PositionFree getNextStepOpositionMedium() {
-    PositionFree? blockWinPlayer = stepToBlockWinPlayer();
+  Position getNextStepOpositionMedium() {
+    Position? blockWinPlayer = stepToBlockWinPlayer();
     if (blockWinPlayer != null) {
       return blockWinPlayer;
     }
-    return (positionsFree..shuffle()).first;
+    return positions.shuffleFree();
   }
 
-  PositionFree getNextStepOpositionHard() {
-    PositionFree? stepWin = stepToWin();
+  Position getNextStepOpositionHard() {
+    Position? stepWin = stepToWin();
     if (stepWin != null) {
       return stepWin;
     }
-    PositionFree? blockWinPlayer = stepToBlockWinPlayer();
+    Position? blockWinPlayer = stepToBlockWinPlayer();
     if (blockWinPlayer != null) {
       return blockWinPlayer;
     }
-    return (positionsFree..shuffle()).first;
+    return positions.shuffleFree();
   }
 }
