@@ -1,26 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:hash/model/Player.dart';
 import 'package:hash/util/OpponentComputer.dart';
+import 'package:rx_notifier/rx_notifier.dart';
 
 class Game {
-  StateGame stateGame = StateGame.open;
+  ValueNotifier<StateGame> stateGame = ValueNotifier<StateGame>(StateGame.open);
   Positions positions = Positions();
 
-  ValueNotifier<Positions> positionsNotify = new ValueNotifier(Positions());
+  ValueNotifier<Positions> positionsNotify = ValueNotifier(Positions());
 
   var timeOf = Players.empty;
   var actualPlayer = Players.empty;
 
   DifficultyLevel _level = DifficultyLevel.medium;
+  var scoreboard = HashScoreboard();
+
+  // HashScoreboard get scoreboard => scoreboard.value;
+
+  Player winner = Players.empty;
 
   start(DifficultyLevel level) {
     actualPlayer = Players.player;
-    stateGame = StateGame.start;
+    stateGame.value = StateGame.start;
     _level = level;
+    positions = Positions();
     positionsNotify.value = this.positions;
   }
 
+  DifficultyLevel getLevel() {
+    return _level;
+  }
+
   play({required int x, required int y}) {
+    if (stateGame.value != StateGame.start) return;
+    if (!positions.getPlayer(x: x, y: y).isEmpty()) return;
     positions.play(
       x: x,
       y: y,
@@ -33,7 +46,7 @@ class Game {
     positionsNotify.value = this.positions;
     positionsNotify.notifyListeners();
 
-    if (actualPlayer.isOpponent() && stateGame != StateGame.finish) {
+    if (actualPlayer.isOpponent() && stateGame.value != StateGame.finish) {
       if (_level == DifficultyLevel.easy)
         OponnentComputer().timeOfOpponentComputerEasy(positions, play);
       else if (_level == DifficultyLevel.medium)
@@ -49,14 +62,18 @@ class Game {
         : Players.opponent;
   }
 
-  setWinner(Player tipoWinner) {
+  setWinner(Player winner) {
     // widget.onWinner(tipoWinner);
-    stateGame = StateGame.finish;
+    stateGame.value = StateGame.finish;
+    scoreboard.addScore(winner);
   }
 
   detectFinish() {
     if (positions.detectFinish()) {
-      stateGame = StateGame.finish;
+      stateGame.value = StateGame.finish;
+      if (winner.isEmpty()) {
+        scoreboard.addScore(winner);
+      }
     }
   }
 
@@ -65,6 +82,31 @@ class Game {
     if (winner != null) {
       setWinner(winner);
     }
+  }
+}
+
+class HashScoreboard {
+  var playerScore = RxNotifier<int>(0);
+  var opponentScore = RxNotifier<int>(0);
+  var drawnsScore = RxNotifier<int>(0);
+
+  addScore(Player player) {
+    if (player.isPlayer())
+      playerScore.value++;
+    else if (player.isOpponent())
+      opponentScore.value++;
+    else
+      drawnsScore.value++;
+  }
+
+  @override
+  String toString() {
+    return "player: " +
+        playerScore.toString() +
+        "opponent: " +
+        opponentScore.toString() +
+        "drawn: " +
+        drawnsScore.toString();
   }
 }
 

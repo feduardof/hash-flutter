@@ -30,8 +30,8 @@ class _ButtonHashState extends State<ButtonHash> {
       child: AnimatedContainer(
         duration: Duration(milliseconds: 100),
         curve: Curves.easeOut,
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 25),
-        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         decoration: BoxDecoration(
           color: isTap ? buttonPressColor : buttonColor,
           borderRadius: BorderRadius.circular(6),

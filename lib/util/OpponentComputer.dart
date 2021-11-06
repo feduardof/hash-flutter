@@ -132,7 +132,7 @@ class AnalyzerPositions {
     for (var p in positions.positions) {
       if (!p.player.isOpponent()) continue;
       // Checando na linha
-      win = getPositionToBlockPlayer(
+      win = getPositionToWin(
         p1: positions.getPosition(x: 1, y: p.y),
         p2: positions.getPosition(x: 2, y: p.y),
         p3: positions.getPosition(x: 3, y: p.y),
@@ -140,7 +140,7 @@ class AnalyzerPositions {
       if (win != null) return win;
 
       // Checando na coluna
-      win = getPositionToBlockPlayer(
+      win = getPositionToWin(
         p1: positions.getPosition(x: p.x, y: 1),
         p2: positions.getPosition(x: p.x, y: 2),
         p3: positions.getPosition(x: p.x, y: 3),
@@ -149,14 +149,14 @@ class AnalyzerPositions {
 
       // Checando na diagonal
       if (p.x == p.y || p.x + p.y == 4) {
-        win = getPositionToBlockPlayer(
+        win = getPositionToWin(
           p1: positions.getPosition(x: 1, y: 1),
           p2: positions.getPosition(x: 2, y: 2),
           p3: positions.getPosition(x: 3, y: 3),
         );
         if (win != null) return win;
 
-        win = getPositionToBlockPlayer(
+        win = getPositionToWin(
           p1: positions.getPosition(x: 1, y: 3),
           p2: positions.getPosition(x: 2, y: 2),
           p3: positions.getPosition(x: 3, y: 1),
