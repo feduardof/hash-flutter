@@ -173,7 +173,7 @@ class Positions {
     }
     // Todos da diagonal direita para esquerda
     if (checkSamePlayer(positions.where((p) => p.x + p.y == 4).toList())) {
-      winner = positions.where((p) => p.x == p.y).toList().first.player;
+      winner = positions.where((p) => p.x + p.y == 4).toList().first.player;
     }
     return winner;
   }

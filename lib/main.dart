@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hash/componnets/scaffold_app.dart';
 import 'package:hash/view/initial_widget.dart';
 
 void main() {
@@ -19,11 +18,9 @@ class MyApp extends StatelessWidget {
     SystemChrome.setEnabledSystemUIOverlays([]);
     return MaterialApp(
       title: 'Hash',
-      // home: MyHomePage(title: 'Hash'),
       initialRoute: "/",
       routes: {
         '/': (context) => InitialWidget(),
-        // '/hash': (context) => HashWidget(),
       },
     );
   }
@@ -47,22 +44,3 @@ class NoAnimationMaterialPageRoute<T> extends MaterialPageRoute<T> {
     return child;
   }
 }
-
-// class MyHomePage extends StatefulWidget {
-//   MyHomePage({Key? key, required this.title}) : super(key: key);
-
-//   final String title;
-
-//   @override
-//   _MyHomePageState createState() => _MyHomePageState();
-// }
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   @override
-//   Widget build(BuildContext context) {
-//     SystemChrome.setEnabledSystemUIOverlays([]);
-//     return ScaffoldApp(
-//       child: InitialWidget(),
-//     );
-//   }
-// }

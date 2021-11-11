@@ -84,21 +84,6 @@ class HashWidget extends StatelessWidget {
       )
     ];
   }
-
-  // buildHashItem(double sizeContainer, {required int x, required int y}) {
-  //   return Expanded(
-  //     child: GestureDetector(
-  //       onTap: () {
-  //         print("as" + x.toString() + " - " + y.toString());
-  //       },
-  //       child: Container(
-  //         height: sizeContainer,
-  //         width: sizeContainer,
-  //         color: Color(0x00000000),
-  //       ),
-  //     ),
-  //   );
-  // }
 }
 
 class HashTable extends StatelessWidget {
