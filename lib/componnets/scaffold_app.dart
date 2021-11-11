@@ -11,21 +11,20 @@ class ScaffoldApp extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xFF3d4479),
       body: Wrap(
-          // color: Colors.black,
-          // height: 800,
-          spacing: 0,
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width * 1,
-              height: 130,
-              child: TitleApp(),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width * 1,
-              height: (MediaQuery.of(context).size.height * 1) - 130,
-              child: child,
-            ),
-          ]),
+        spacing: 0,
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width * 1,
+            height: 130,
+            child: TitleApp(),
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width * 1,
+            height: (MediaQuery.of(context).size.height * 1) - 130,
+            child: child,
+          ),
+        ],
+      ),
     );
   }
 }

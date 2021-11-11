@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hash/controller/game_controller.dart';
+import 'package:hash/model/hash_scorboard.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 
 class HashScoreboardWidget extends StatelessWidget {

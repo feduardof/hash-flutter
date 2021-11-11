@@ -6,6 +6,7 @@ import 'package:hash/componnets/button_hash.dart';
 import 'package:hash/componnets/scaffold_app.dart';
 import 'package:hash/controller/game_controller.dart';
 import 'package:hash/main.dart';
+import 'package:hash/model/difficulty_level.dart';
 import 'package:hash/view/hash_widget.dart';
 
 class InitialWidget extends StatefulWidget {
@@ -18,7 +19,7 @@ class InitialWidget extends StatefulWidget {
 class _InitialWidgetState extends State<InitialWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final Game _controllerGame = new Game();
+  final GameController _controllerGame = new GameController();
 
   var showGame = false;
 
